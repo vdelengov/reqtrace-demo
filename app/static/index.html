@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requirements Agent · LabQC Connect</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo">RQ</div>
+    <div>
+      <div class="title">Requirements Agent</div>
+      <div class="sub">LabQC Connect platform · fictional demo data</div>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="seg" id="mode">
+      <button data-mode="live">Live · Claude Code</button>
+      <button data-mode="replay">Replay</button>
+    </div>
+    <span class="pill" id="claude-status">Checking Claude Code…</span>
+    <button class="ghost" id="btn-log">Review log</button>
+    <button class="ghost" id="btn-reset" title="Clear outputs and the review log">Reset</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel explorer">
+    <div class="panel-head">
+      <div class="tabs" id="tabs">
+        <button data-tab="trace" class="on">Trace</button>
+        <button data-tab="dds">DDS · Marketing</button>
+        <button data-tab="did">DID · System</button>
+        <button data-tab="srs">SRS · Software</button>
+        <button data-tab="tests">Tests</button>
+      </div>
+      <div class="head-right"><label class="flt"><input type="checkbox" id="only-flagged"> Only flagged</label><div class="counts" id="counts"></div></div>
+    </div>
+    <div class="scroll" id="explorer"></div>
+  </section>
+
+  <section class="panel agent">
+    <div class="steps">
+      <button class="step" id="btn-check">
+        <span class="n">1</span>
+        <span class="lbl"><b>Scripted checks</b><small>Trace links, tests, EARS syntax. No AI.</small></span>
+      </button>
+      <button class="step" id="btn-gap">
+        <span class="n">2</span>
+        <span class="lbl"><b>Gap discovery</b><small>Agent looks for conflicts and vague wording</small></span>
+      </button>
+      <button class="step" id="btn-impact">
+        <span class="n">3</span>
+        <span class="lbl"><b>Impact · CR-014</b><small>Lot expiry in outbound HL7 results</small></span>
+      </button>
+    </div>
+    <div class="scroll" id="agent-scroll">
+      <div id="empty" class="empty">
+        <p><b>Start with step 1.</b> The scripted checks find structural gaps without AI.</p>
+        <p>Steps 2 and 3 run an agent. It pauses and asks you before anything is final.</p>
+      </div>
+      <div id="feed"></div>
+      <div id="human"></div>
+      <div id="results"></div>
+    </div>
+  </section>
+</main>
+
+<div class="drawer hidden" id="drawer">
+  <div class="drawer-card">
+    <div class="drawer-head"><b>Review log</b><span class="muted">Every human decision, recorded by the app</span><button class="ghost" id="drawer-close">Close</button></div>
+    <div class="drawer-body" id="drawer-body"></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

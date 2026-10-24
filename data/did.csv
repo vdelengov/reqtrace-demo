@@ -1,0 +1,11 @@
+id,parent,title,text
+DID-001,DDS-001,User authentication,"When a user attempts to log in, the LabQC Connect system shall authenticate the user against the laboratory directory before granting access."
+DID-002,DDS-001,Configuration permissions,The LabQC Connect system shall restrict configuration changes to users with the Supervisor role.
+DID-003,DDS-002,ASTM result intake,"When an analyzer sends a QC result over ASTM E1394, the LabQC Connect system shall store the result within 2 seconds."
+DID-004,DDS-004,HL7 result transmission,"When a QC result is accepted, the LabQC Connect system shall transmit the result to the LIS as an HL7 v2.5 ORU^R01 message."
+DID-005,DDS-005,Chart update time,"When a QC result is stored, the LabQC Connect system shall display the result on the Levey-Jennings chart within 3 seconds."
+DID-006,DDS-006,Lot records,The LabQC Connect system shall record the lot number and expiry date of each QC material.
+DID-007,DDS-003,Westgard rule evaluation,"When a QC result violates a configured Westgard rule, the LabQC Connect system shall flag the result and notify the assigned user."
+DID-008,DDS-007,Audit logging,The LabQC Connect system shall record every user action and every outbound message with a timestamp and user ID.
+DID-009,DDS-006,Expired lot block,"If a QC material lot is expired, then the LabQC Connect system shall prevent new results from being accepted for that lot."
+DID-010,DDS-007,Audit export,"When a user requests an audit export, the LabQC Connect system shall export the selected audit records as a PDF."

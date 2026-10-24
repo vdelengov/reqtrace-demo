@@ -1,0 +1,19 @@
+id,parent,title,text
+SRS-001,DID-001,Credential validation,"When the user submits credentials, the QC software shall validate the credentials through the LDAP service."
+SRS-002,DID-001,Account lockout,"If authentication fails three consecutive times, then the QC software shall lock the account for 15 minutes."
+SRS-003,DID-002,Configuration controls,"While the current user lacks the Supervisor role, the QC software shall disable all configuration controls."
+SRS-004,DID-003,ASTM parsing,"When an ASTM result record is received, the QC software shall parse the record and store it in the results database."
+SRS-005,DID-003,ASTM checksum,"If an ASTM record fails checksum validation, then the QC software shall reject the record and log an error."
+SRS-006,DID-004,HL7 message generation,"When a QC result is accepted, the QC software shall generate an HL7 v2.5 ORU^R01 message for the result."
+SRS-007,DID-004,HL7 retry,"If the LIS does not acknowledge a message within 30 seconds, then the QC software shall retry the transmission up to 3 times."
+SRS-008,DID-006,Lot storage,The QC software shall store the lot number and expiry date in each QC material record.
+SRS-009,DID-007,Rule flagging,"When a stored result violates a configured Westgard rule, the QC software shall set the result status to Flagged."
+SRS-010,DID-005,Chart rendering,"When a QC result is stored, the QC software shall render the result on the Levey-Jennings chart within 5 seconds."
+SRS-011,DID-007,Flag notification,"When a result is flagged, the QC software shall send a notification to the assigned user."
+SRS-012,DID-008,User action audit,"The QC software shall write an audit record for every user action, including the timestamp and user ID."
+SRS-013,DID-008,Message audit,"When an HL7 message is sent, the QC software shall write an audit record containing the message control ID."
+SRS-014,DID-010,PDF export,"When the user selects Export, the QC software shall generate a PDF of the selected audit records."
+SRS-015,DID-005,Chart readability,The Levey-Jennings charts should be easy to read.
+SRS-016,DID-003,Result processing,"When a result is received, the QC software shall process the result promptly."
+SRS-017,,Legacy CSV export,The QC software shall export results in the legacy CSV format.
+SRS-018,DID-006,Expiry validation,"When a lot record is saved, the QC software shall validate that the expiry date is in the future."

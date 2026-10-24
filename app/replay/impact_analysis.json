@@ -1,0 +1,187 @@
+{
+  "phase1": [
+    {
+      "kind": "status",
+      "text": "Loaded skill impact-analysis (.claude/skills/impact-analysis/SKILL.md)",
+      "delay": 0.6
+    },
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "data/change_request_CR-014.md",
+      "delay": 0.8
+    },
+    {
+      "kind": "text",
+      "text": "CR-014 changes outbound HL7 result content. Tracing down from the system level.",
+      "delay": 1.0
+    },
+    {
+      "kind": "tool",
+      "name": "Bash",
+      "text": "python3 scripts/check_trace.py --tree DID-004 DID-006",
+      "delay": 0.8
+    },
+    {
+      "kind": "tool_result",
+      "text": "DID-004 -> SRS-006 (TC-006), SRS-007 (TC-007)\nDID-006 -> SRS-008 (TC-008), SRS-018 (no test)",
+      "delay": 1.0
+    },
+    {
+      "kind": "text",
+      "text": "Affected: DID-004, DID-006, SRS-006, SRS-008. SRS-007 (retry) is unaffected.",
+      "delay": 1.1
+    },
+    {
+      "kind": "text",
+      "text": "No existing SRS requires the expiry date in the message, so I am proposing one in EARS form.",
+      "delay": 1.1
+    },
+    {
+      "kind": "text",
+      "text": "SRS-013 (message audit) might be affected. Low confidence.",
+      "delay": 0.9
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/impact_CR-014.draft.json",
+      "write": {
+        "path": "outputs/impact_CR-014.draft.json",
+        "json": {
+          "change": "CR-014",
+          "items": [
+            {
+              "ref": "I1",
+              "id": "DID-004",
+              "level": "DID",
+              "rationale": "The outbound HL7 ORU^R01 message content changes.",
+              "confidence": "high"
+            },
+            {
+              "ref": "I2",
+              "id": "DID-006",
+              "level": "DID",
+              "rationale": "The lot expiry date recorded here is the new data being sent.",
+              "confidence": "high"
+            },
+            {
+              "ref": "I3",
+              "id": "SRS-006",
+              "level": "SRS",
+              "rationale": "Message generation must add the expiry date.",
+              "confidence": "high"
+            },
+            {
+              "ref": "I4",
+              "id": "SRS-008",
+              "level": "SRS",
+              "rationale": "The expiry date must be stored where the message builder can read it.",
+              "confidence": "high"
+            },
+            {
+              "ref": "I5",
+              "id": "SRS-013",
+              "level": "SRS",
+              "rationale": "The audit record of a sent message might need to capture the new content.",
+              "confidence": "low"
+            }
+          ],
+          "tests": [
+            {
+              "id": "TC-006",
+              "verifies": "SRS-006",
+              "action": "Update expected message content"
+            },
+            {
+              "id": "TC-008",
+              "verifies": "SRS-008",
+              "action": "Confirm expiry date is available to the message builder"
+            }
+          ],
+          "proposed_requirements": [
+            {
+              "ref": "P1",
+              "parent": "DID-004",
+              "level": "SRS",
+              "text": "When an HL7 ORU^R01 QC result message is generated, the QC software shall include the QC material lot expiry date in an OBX segment."
+            }
+          ]
+        }
+      },
+      "delay": 0.8
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/questions.json",
+      "write": {
+        "path": "outputs/questions.json",
+        "json": [
+          {
+            "id": "Q1",
+            "ref": "P1",
+            "title": "New requirement (EARS)",
+            "ids": [
+              "DID-004"
+            ],
+            "question": "Add this new SRS requirement under DID-004?",
+            "proposal": "When an HL7 ORU^R01 QC result message is generated, the QC software shall include the QC material lot expiry date in an OBX segment.",
+            "options": [
+              "Accept",
+              "Edit text (add a comment)",
+              "Not needed"
+            ],
+            "reject_options": [
+              "Not needed"
+            ]
+          },
+          {
+            "id": "Q2",
+            "ref": "I5",
+            "title": "Low-confidence impact",
+            "ids": [
+              "SRS-013"
+            ],
+            "question": "SRS-013 logs only the message control ID. Is it affected by adding the expiry date?",
+            "options": [
+              "Include as affected",
+              "Not affected"
+            ],
+            "reject_options": [
+              "Not affected"
+            ]
+          }
+        ]
+      },
+      "delay": 0.8
+    },
+    {
+      "kind": "text",
+      "text": "Two decisions needed from you before I finalize the impact.",
+      "delay": 0.6
+    }
+  ],
+  "phase2": [
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "outputs/answers.json",
+      "delay": 0.8
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/impact_CR-014.json",
+      "merge": true,
+      "delay": 0.8
+    },
+    {
+      "kind": "tool",
+      "name": "Bash",
+      "text": "python3 scripts/eval_impact.py outputs/impact_CR-014.json",
+      "eval": "impact-analysis",
+      "delay": 0.8
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "phase1": [
+    {
+      "kind": "status",
+      "text": "Loaded skill gap-discovery (.claude/skills/gap-discovery/SKILL.md)",
+      "delay": 0.6
+    },
+    {
+      "kind": "text",
+      "text": "Starting with the scripted checks so structural facts come from code, not from me.",
+      "delay": 0.9
+    },
+    {
+      "kind": "tool",
+      "name": "Bash",
+      "text": "python3 scripts/check_trace.py",
+      "delay": 0.8
+    },
+    {
+      "kind": "tool_result",
+      "text": "Structural gaps found: 6\n- missing_child: DDS-008\n- missing_child: DID-009\n- orphan: SRS-017\n- missing_test: SRS-012\n- missing_test: SRS-018\n- ears_violation: SRS-015",
+      "delay": 1.0
+    },
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "data/did.csv",
+      "delay": 0.7
+    },
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "data/srs.csv",
+      "delay": 0.7
+    },
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "data/tests.csv",
+      "delay": 0.7
+    },
+    {
+      "kind": "text",
+      "text": "Comparing each SRS with its parent DID for values that disagree.",
+      "delay": 1.1
+    },
+    {
+      "kind": "text",
+      "text": "Conflict: DID-005 requires the chart within 3 seconds, but its child SRS-010 allows 5 seconds.",
+      "delay": 1.2
+    },
+    {
+      "kind": "text",
+      "text": "SRS-016 passes the EARS syntax check, but 'promptly' is not measurable. SRS-015 fails EARS: 'should' and no measurable response.",
+      "delay": 1.2
+    },
+    {
+      "kind": "text",
+      "text": "Possible issue, low confidence: TC-015 may not cover SRS-016 timing.",
+      "delay": 1.0
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/gap_report.draft.json",
+      "write": {
+        "path": "outputs/gap_report.draft.json",
+        "json": {
+          "findings": [
+            {
+              "ref": "F1",
+              "type": "missing_child",
+              "ids": [
+                "DDS-008"
+              ],
+              "evidence": "No DID lists DDS-008 as its parent, so peer comparison is never specified at system level.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F2",
+              "type": "missing_child",
+              "ids": [
+                "DID-009"
+              ],
+              "evidence": "No SRS lists DID-009 as its parent, so blocking results for expired lots is not implemented in software requirements.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F3",
+              "type": "orphan",
+              "ids": [
+                "SRS-017"
+              ],
+              "evidence": "SRS-017 has an empty parent field.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F4",
+              "type": "missing_test",
+              "ids": [
+                "SRS-012"
+              ],
+              "evidence": "No test case verifies SRS-012.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F5",
+              "type": "missing_test",
+              "ids": [
+                "SRS-018"
+              ],
+              "evidence": "No test case verifies SRS-018.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F6",
+              "type": "ears_violation",
+              "ids": [
+                "SRS-015"
+              ],
+              "evidence": "'The Levey-Jennings charts should be easy to read.' uses 'should', has no 'shall', and has no measurable response.",
+              "confidence": "high",
+              "proposed_text": "When a QC result is displayed on the Levey-Jennings chart, the QC software shall show the mean and the 1, 2 and 3 SD control limits."
+            },
+            {
+              "ref": "F7",
+              "type": "conflict",
+              "ids": [
+                "DID-005",
+                "SRS-010"
+              ],
+              "evidence": "DID-005 requires the chart within 3 seconds; its child SRS-010 allows 5 seconds.",
+              "confidence": "high"
+            },
+            {
+              "ref": "F8",
+              "type": "ambiguous",
+              "ids": [
+                "SRS-016"
+              ],
+              "evidence": "'process the result promptly' has no measurable limit, so it cannot be verified.",
+              "confidence": "medium",
+              "proposed_text": "When an ASTM result record is received, the QC software shall store the result within 2 seconds."
+            },
+            {
+              "ref": "F9",
+              "type": "missing_test",
+              "ids": [
+                "SRS-016"
+              ],
+              "evidence": "TC-015 exists for SRS-016 but its title does not mention timing.",
+              "confidence": "low"
+            }
+          ]
+        }
+      },
+      "delay": 0.8
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/questions.json",
+      "write": {
+        "path": "outputs/questions.json",
+        "json": [
+          {
+            "id": "Q1",
+            "ref": "F7",
+            "title": "Conflict between levels",
+            "ids": [
+              "DID-005",
+              "SRS-010"
+            ],
+            "question": "DID-005 says 3 seconds. SRS-010 says 5 seconds. Which should win?",
+            "options": [
+              "Align SRS-010 to 3 seconds",
+              "Change DID-005 to 5 seconds",
+              "Escalate for a product decision",
+              "Not a real issue"
+            ],
+            "reject_options": [
+              "Not a real issue"
+            ]
+          },
+          {
+            "id": "Q2",
+            "ref": "F6",
+            "title": "Rewrite in EARS",
+            "ids": [
+              "SRS-015"
+            ],
+            "question": "SRS-015 is not testable as written. Accept this EARS rewrite?",
+            "proposal": "When a QC result is displayed on the Levey-Jennings chart, the QC software shall show the mean and the 1, 2 and 3 SD control limits.",
+            "options": [
+              "Accept rewrite",
+              "Edit rewrite (add a comment)",
+              "Keep original text",
+              "Not a real issue"
+            ],
+            "reject_options": [
+              "Not a real issue"
+            ]
+          },
+          {
+            "id": "Q3",
+            "ref": "F8",
+            "title": "Ambiguous wording",
+            "ids": [
+              "SRS-016"
+            ],
+            "question": "Replace 'promptly' in SRS-016 with a measurable limit taken from its parent DID-003?",
+            "proposal": "When an ASTM result record is received, the QC software shall store the result within 2 seconds.",
+            "options": [
+              "Accept rewrite",
+              "Edit rewrite (add a comment)",
+              "Keep original text",
+              "Not a real issue"
+            ],
+            "reject_options": [
+              "Not a real issue"
+            ]
+          },
+          {
+            "id": "Q4",
+            "ref": "F9",
+            "title": "Low-confidence finding",
+            "ids": [
+              "SRS-016",
+              "TC-015"
+            ],
+            "question": "I am not sure SRS-016 lacks a test. TC-015 exists but does not mention timing. Keep this finding?",
+            "options": [
+              "Keep as a finding",
+              "Not a real issue"
+            ],
+            "reject_options": [
+              "Not a real issue"
+            ]
+          }
+        ]
+      },
+      "delay": 0.8
+    },
+    {
+      "kind": "text",
+      "text": "I need your decision on 4 items before I finalize the report. I will not change any requirement myself.",
+      "delay": 0.6
+    }
+  ],
+  "phase2": [
+    {
+      "kind": "text",
+      "text": "Reading your decisions.",
+      "delay": 0.6
+    },
+    {
+      "kind": "tool",
+      "name": "Read",
+      "text": "outputs/answers.json",
+      "delay": 0.8
+    },
+    {
+      "kind": "text",
+      "text": "Applying decisions: rejected findings are kept in the report but marked rejected, so the record stays complete.",
+      "delay": 1.0
+    },
+    {
+      "kind": "tool",
+      "name": "Write",
+      "text": "outputs/gap_report.json",
+      "merge": true,
+      "delay": 0.8
+    },
+    {
+      "kind": "tool",
+      "name": "Bash",
+      "text": "python3 scripts/eval.py outputs/gap_report.json",
+      "eval": "gap-discovery",
+      "delay": 0.8
+    }
+  ]
+}

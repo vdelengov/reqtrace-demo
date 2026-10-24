@@ -1,0 +1,16 @@
+id,verifies,title
+TC-001,SRS-001,Verify credential validation
+TC-002,SRS-002,Verify account lockout
+TC-003,SRS-003,Verify configuration controls
+TC-004,SRS-004,Verify astm parsing
+TC-005,SRS-005,Verify astm checksum
+TC-006,SRS-006,Verify hl7 message generation
+TC-007,SRS-007,Verify hl7 retry
+TC-008,SRS-008,Verify lot storage
+TC-009,SRS-009,Verify rule flagging
+TC-010,SRS-010,Verify chart rendering
+TC-011,SRS-011,Verify flag notification
+TC-012,SRS-013,Verify message audit
+TC-013,SRS-014,Verify pdf export
+TC-014,SRS-015,Verify chart readability
+TC-015,SRS-016,Verify result processing

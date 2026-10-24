@@ -1,0 +1,59 @@
+[
+  {
+    "type": "missing_child",
+    "ids": [
+      "DDS-008"
+    ],
+    "note": "No DID traces to DDS-008."
+  },
+  {
+    "type": "missing_child",
+    "ids": [
+      "DID-009"
+    ],
+    "note": "No SRS implements DID-009."
+  },
+  {
+    "type": "orphan",
+    "ids": [
+      "SRS-017"
+    ],
+    "note": "SRS-017 has no parent DID."
+  },
+  {
+    "type": "missing_test",
+    "ids": [
+      "SRS-012"
+    ],
+    "note": "No test verifies SRS-012."
+  },
+  {
+    "type": "missing_test",
+    "ids": [
+      "SRS-018"
+    ],
+    "note": "No test verifies SRS-018."
+  },
+  {
+    "type": "ears_violation",
+    "ids": [
+      "SRS-015"
+    ],
+    "note": "Not written in an EARS pattern."
+  },
+  {
+    "type": "conflict",
+    "ids": [
+      "DID-005",
+      "SRS-010"
+    ],
+    "note": "3 seconds at system level, 5 seconds at software level."
+  },
+  {
+    "type": "ambiguous",
+    "ids": [
+      "SRS-016"
+    ],
+    "note": "'promptly' cannot be verified."
+  }
+]

@@ -1,0 +1,9 @@
+id,title,text
+DDS-001,Authorized access,The LabQC Connect system shall allow only authorized laboratory staff to access QC data.
+DDS-002,Automatic data collection,The LabQC Connect system shall collect QC results from connected analyzers automatically.
+DDS-003,Rule violation alerts,"When a QC result violates the laboratory's QC rules, the LabQC Connect system shall alert laboratory staff."
+DDS-004,LIS reporting,The LabQC Connect system shall send accepted QC results to the laboratory information system.
+DDS-005,QC trends,The LabQC Connect system shall show QC performance trends over time.
+DDS-006,QC material lots,The LabQC Connect system shall track QC material lots and their expiry dates.
+DDS-007,Audit trail,The LabQC Connect system shall keep a complete audit trail of user actions and data transmissions.
+DDS-008,Peer comparison,The LabQC Connect system shall allow laboratory staff to compare QC performance with peer laboratories.
