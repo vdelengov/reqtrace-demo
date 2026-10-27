@@ -42,7 +42,8 @@ SKILLS = {
         "final": OUT / "gap_report.json",
         "replay": ROOT / "app" / "replay" / "gap_discovery.json",
         "prompt1": "Use the gap-discovery skill (.claude/skills/gap-discovery/SKILL.md). Run phase 1 only, "
-                   "then stop after writing outputs/gap_report.draft.json and outputs/questions.json.",
+                   "then stop after writing outputs/gap_report.draft.json and outputs/questions.json. "
+                   "Create output files with the Write tool; Bash is limited to python3 scripts/*.",
         "prompt2": "The human has answered your questions in the review UI. Run phase 2 of the gap-discovery "
                    "skill now: read outputs/answers.json, write outputs/gap_report.json, run "
                    "python3 scripts/eval.py outputs/gap_report.json, and report the result briefly.",
@@ -52,7 +53,8 @@ SKILLS = {
         "final": OUT / "impact_CR-014.json",
         "replay": ROOT / "app" / "replay" / "impact_analysis.json",
         "prompt1": "Use the impact-analysis skill (.claude/skills/impact-analysis/SKILL.md) on CR-014. Run phase 1 "
-                   "only, then stop after writing outputs/impact_CR-014.draft.json and outputs/questions.json.",
+                   "only, then stop after writing outputs/impact_CR-014.draft.json and outputs/questions.json. "
+                   "Create output files with the Write tool; Bash is limited to python3 scripts/*.",
         "prompt2": "The human has answered your questions in the review UI. Run phase 2 of the impact-analysis "
                    "skill now: read outputs/answers.json, write outputs/impact_CR-014.json, run "
                    "python3 scripts/eval_impact.py outputs/impact_CR-014.json, and report the result briefly.",
@@ -288,6 +290,9 @@ def phase1(run):
             run_claude(run, cfg["prompt1"])
         else:
             replay(run, "phase1")
+        if not (OUT / "questions.json").exists():
+            raise RuntimeError("The agent did not write outputs/questions.json, so there is nothing to review. "
+                               "Check the feed for denied tool calls, then reset and run again.")
         qs = read_json(OUT / "questions.json", []) or []
         if qs:
             run.questions = qs
@@ -412,8 +417,13 @@ class Handler(BaseHTTPRequestHandler):
             submit_answers(run, self.body().get("answers", []))
             return self.send_json({"ok": True})
         if u.path == "/api/reset":
+            with RUNS_LOCK:
+                for r in RUNS.values():
+                    if r.status == "waiting_human":   # paused for a human, no process running: safe to discard
+                        r.status, r.questions = "error", []
+                        r.add("status", "Run discarded by reset.")
             if active_run():
-                return self.send_json({"error": "A run is in progress."}, 409)
+                return self.send_json({"error": "The agent is still working. Wait for it to pause or finish, then reset."}, 409)
             for cfg in SKILLS.values():
                 clear_outputs(cfg)
             for p in (OUT / "structural_gaps.json", REVIEW_LOG):

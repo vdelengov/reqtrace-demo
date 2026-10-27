@@ -184,3 +184,9 @@ tr.rejected td.st { text-decoration: none; }
 .drawer-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .drawer-head .ghost { margin-left: auto; }
 .drawer-body { overflow: auto; padding: 8px 16px 20px; }
+
+details.fold { display: inline; }
+details.fold > summary { cursor: pointer; color: var(--muted, #6b7683); list-style: none; display: inline; }
+details.fold > summary::before { content: "▸ "; }
+details.fold[open] > summary::before { content: "▾ "; }
+details.fold[open] > pre.out { margin-top: 6px; }

@@ -16,11 +16,13 @@ This skill runs in two phases. The prompt says which phase to run.
 4. If no existing requirement covers the change, propose a new one in EARS form.
 5. Write `outputs/impact_CR-014.draft.json`:
    `{"change": "CR-014", "items": [{"ref": "I1", "id": "DID-004", "level": "DID", "rationale": "...", "confidence": "high|medium|low"}], "tests": [{"id": "TC-006", "verifies": "SRS-006", "action": "..."}], "proposed_requirements": [{"ref": "P1", "parent": "DID-004", "level": "SRS", "text": "EARS text"}]}`
-6. Write `outputs/questions.json`: one question for every proposed requirement and every item
-   with confidence `medium` or `low`. Same format as the gap-discovery skill:
+6. Write `outputs/questions.json`: exactly one question for **every** affected item and **every**
+   proposed requirement, with its `ref`, regardless of confidence (including `high`). Never skip one and
+   never decide for the human that it is affected or needed. Before you stop, check that every `ref` in
+   `impact_CR-014.draft.json` appears in `questions.json`. Same format as the gap-discovery skill:
    `[{"id": "Q1", "ref": "P1", "title": "...", "ids": ["DID-004"], "question": "...", "proposal": "optional", "options": [...], "reject_options": [...]}]`
    For a proposed requirement use options `["Accept", "Edit text (add a comment)", "Not needed"]`, rejecting on "Not needed".
-   For an uncertain item use `["Include as affected", "Not affected"]`, rejecting on "Not affected".
+   For an affected item (any confidence) use `["Include as affected", "Not affected"]`, rejecting on "Not affected".
 7. Stop. Do not write the final report and do not change any requirement.
 
 ## Phase 2: apply the human's decisions

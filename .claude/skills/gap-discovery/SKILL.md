@@ -18,8 +18,10 @@ This skill runs in two phases. The prompt says which phase to run.
    `{"findings": [{"ref": "F1", "type": "...", "ids": ["SRS-010"], "evidence": "...", "confidence": "high|medium|low", "proposed_text": "optional EARS rewrite"}]}`
    Types: `missing_child`, `orphan`, `missing_test`, `ears_violation`, `conflict`, `ambiguous`.
    For `conflict`, list the parent and the child ID. Include only findings you can back with quoted text.
-5. Write `outputs/questions.json`: one question for every `conflict`, every finding with a
-   `proposed_text`, and every finding with confidence `medium` or `low`. Format:
+5. Write `outputs/questions.json`: exactly one question for **every** finding in the draft, with the
+   finding's `ref`, regardless of type or confidence (including `high` confidence and gaps reported by
+   `check_trace.py`). Never skip a finding and never decide for the human that it is a real issue. Before
+   you stop, check that every `ref` in `gap_report.draft.json` appears in `questions.json`. Format:
    `[{"id": "Q1", "ref": "F7", "title": "short label", "ids": ["DID-005","SRS-010"], "question": "...", "proposal": "optional EARS text", "options": ["...", "Not a real issue"], "reject_options": ["Not a real issue"]}]`
    Always include "Not a real issue" as the last option and in `reject_options`.
 6. Stop. Do not write the final report and do not change any requirement. The human answers in the UI.
@@ -29,7 +31,7 @@ This skill runs in two phases. The prompt says which phase to run.
 1. Read `outputs/answers.json` (`[{"id": "Q1", "choice": "...", "comment": "..."}]`) and `outputs/questions.json`.
 2. Write `outputs/gap_report.json`: every finding from the draft, each with a `status`.
    - A finding whose question was answered with a choice in that question's `reject_options` gets `"status": "rejected"`.
-   - Every other finding gets `"status": "accepted"`.
+   - Every other finding gets `"status": "accepted"`, using the human's choice.
    - Add `human_decision` and `human_comment` to findings that had a question.
 3. Run `python3 scripts/eval.py outputs/gap_report.json` and report the result in one or two sentences.
 4. Do not ask further questions.
