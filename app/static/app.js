@@ -130,12 +130,29 @@ function setBadge(status) {
   const label = { running: "running", waiting_human: "waiting for you", done: "done", error: "error" }[status] || status;
   b.className = `badge ${status}`; b.textContent = label;
 }
+/* One-line summary for a tool call; the full text stays available in an expander. */
+function toolSummary(e) {
+  const t = String(e.text || "");
+  if (e.name !== "Bash") return t;
+  const wrote = [...t.matchAll(/>\s*(outputs\/[\w./-]+)/g)].map((m) => m[1]);
+  if (wrote.length) return `Wrote ${[...new Set(wrote)].join(", ")}`;
+  const first = t.split("\n")[0];
+  return first.length > 90 || t.includes("\n") ? first.slice(0, 90) + "…" : t;
+}
 function addEvent(e) {
   const box = $("#events"); if (!box) return;
   const icon = { text: "AI", tool: "›", tool_result: "", human: "You", error: "!", status: "·" }[e.kind] ?? "·";
   let body;
-  if (e.kind === "tool") body = `<span class="toolname">${esc(e.name || "Tool")}</span><span class="mono">${rich(e.text)}</span>`;
-  else if (e.kind === "tool_result") body = `<pre class="out">${rich(e.text)}</pre>`;
+  if (e.kind === "tool") {
+    const sum = toolSummary(e);
+    const full = String(e.text || "");
+    body = `<span class="toolname">${esc(e.name || "Tool")}</span>` + (sum === full
+      ? `<span class="mono">${rich(sum)}</span>`
+      : `<details class="fold"><summary class="mono">${esc(sum)}</summary><pre class="out">${rich(full)}</pre></details>`);
+  } else if (e.kind === "tool_result") {
+    body = e.open ? `<pre class="out">${rich(e.text)}</pre>`
+      : `<details class="fold"><summary class="muted">Output (${String(e.text).split("\n").length} lines)</summary><pre class="out">${rich(e.text)}</pre></details>`;
+  }
   else if (e.kind === "status") body = `<span class="muted">${rich(e.text)}</span>`;
   else body = rich(e.text);
   const div = document.createElement("div");
@@ -161,7 +178,7 @@ async function runChecks() {
     state.gaps = {};
     for (const g of res.gaps) addGap(g.ids, g.type);
     const ok = Object.values(res.ears).filter(Boolean).length;
-    addEvent({ kind: "tool_result", text: `EARS syntax: ${ok} of ${Object.keys(res.ears).length} requirements match a pattern\n` +
+    addEvent({ kind: "tool_result", open: true, text: `EARS syntax: ${ok} of ${Object.keys(res.ears).length} requirements match a pattern\n` +
       res.gaps.map((g) => `- ${g.type}: ${g.ids.join(", ")} (${g.detail})`).join("\n") + `\n\nStructural gaps found: ${res.gaps.length}` });
     addEvent({ kind: "status", text: "Deterministic: same input, same output. Gaps are marked in the explorer. Conflicts and vague wording need step 2." });
     setBadge("done");
@@ -203,25 +220,36 @@ function renderHuman(questions) {
       <div class="q-text">${rich(q.question)}</div>
       ${q.proposal ? `<div class="proposal"><span class="lab">Proposed text (EARS)</span>${earsHtml(q.proposal)}</div>` : ""}
       <div class="opts">${q.options.map((o) => `<button class="opt${(q.reject_options || []).includes(o) ? " rej" : ""}" data-q="${esc(q.id)}" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div>
-      <textarea placeholder="Comment (optional, saved to the review log)" data-c="${esc(q.id)}"></textarea>
+      <textarea placeholder="Comment, or type your own resolution here if none of the options fit (saved to the review log)" data-c="${esc(q.id)}"></textarea>
     </div>`).join("");
   $("#human").innerHTML = `<div class="hitl">
     <div class="hitl-head"><span class="dot"></span><b>Human input needed</b><span class="muted">The agent has paused. Nothing is final until you decide.</span></div>
     ${qs}
     <div class="hitl-foot"><span class="muted" id="hitl-count">0 of ${questions.length} answered</span><button class="primary" id="btn-send" disabled>Send decisions to the agent</button></div>
   </div>`;
+  const OTHER = "Other (own resolution, see comment)";
+  const refresh = () => {
+    let n = 0;
+    for (const q of questions) {
+      const box = $(`#q-${CSS.escape(q.id)}`);
+      const typed = box.querySelector("textarea").value.trim();
+      const answered = !!(state.answers[q.id]?.choice || typed);
+      box.classList.toggle("answered", answered);
+      if (answered) n++;
+    }
+    $("#hitl-count").textContent = `${n} of ${questions.length} answered`;
+    $("#btn-send").disabled = n < questions.length;
+  };
   $("#human").querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => {
     const q = b.dataset.q;
     state.answers[q] = { ...(state.answers[q] || {}), choice: b.dataset.o };
     $(`#q-${CSS.escape(q)}`).querySelectorAll(".opt").forEach((x) => x.classList.toggle("sel", x === b));
-    $(`#q-${CSS.escape(q)}`).classList.add("answered");
-    const n = Object.values(state.answers).filter((a) => a.choice).length;
-    $("#hitl-count").textContent = `${n} of ${questions.length} answered`;
-    $("#btn-send").disabled = n < questions.length;
+    refresh();
   }));
+  $("#human").querySelectorAll("textarea").forEach((t) => t.addEventListener("input", refresh));
   $("#btn-send").addEventListener("click", async () => {
     $("#btn-send").disabled = true;
-    const answers = questions.map((q) => ({ id: q.id, choice: state.answers[q.id]?.choice, comment: $(`textarea[data-c="${CSS.escape(q.id)}"]`).value }));
+    const answers = questions.map((q) => ({ id: q.id, choice: state.answers[q.id]?.choice || OTHER, comment: $(`textarea[data-c="${CSS.escape(q.id)}"]`).value }));
     try { await api(`/api/run/${state.run.id}/answers`, { answers }); $("#human").innerHTML = ""; }
     catch (e) { addEvent({ kind: "error", text: e.message }); $("#btn-send").disabled = false; }
   });
